@@ -7,7 +7,7 @@ def show_moving_average_comparison(ticker, historical_data) -> plotly.graph_objs
     fig = px.line(
         historical_data.query(f'ticker == "{ticker}"'), 
         x=historical_data.query(f'ticker == "{ticker}"').index, 
-        y=['90_day_ma', '5_day_ma']
+        y=['long_term_ma', 'short_term_ma']
         )
     return fig
 

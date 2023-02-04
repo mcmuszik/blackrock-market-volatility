@@ -66,8 +66,8 @@ def collect_data(ticker_list: List[str], n_threads=20, start: str = '2020-01-01'
     company_data = pd.DataFrame([i[1] for i in data])
 
     historical_data['Close_Diff'] = historical_data['Close'].diff()
-    historical_data['90_day_ma'] = calculate_moving_average(historical_data, days=30)
-    historical_data['5_day_ma'] = calculate_moving_average(historical_data, days=5)
+    historical_data['long_term_ma'] = calculate_moving_average(historical_data, days=30)
+    historical_data['short_term_ma'] = calculate_moving_average(historical_data, days=5)
     return historical_data, company_data
 
 if __name__ == "__main__":
