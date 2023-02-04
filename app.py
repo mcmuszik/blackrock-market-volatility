@@ -2,8 +2,11 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.express as px
+import datetime as date
 
-st.header('BlackRock Market Volatility')
+today = date.date.today().strftime('%m/%d/%Y')
+
+st.header(f'Market Volatility {today}')
 st.subheader('created by Marc Muszik and John Black')
 
 data = dict(
@@ -19,3 +22,5 @@ fig = px.sunburst(
 )
 
 st.plotly_chart(fig, theme=None, use_container_width=True)
+
+st.caption('This plot charts the current volatility of individual shares from 500 publicly traded companies compared to their historical volatility. Data is sourced from Yahoo Finance.')
