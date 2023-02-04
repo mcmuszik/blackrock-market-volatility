@@ -13,8 +13,14 @@ st.header(f'Market Volatility {today}')
 st.subheader('created by Marc Muszik and John Black')
 
 stock_list = list_us_stocks(n=500)
-historical_data, company_data = collect_data(stock_list)
-fig = create_treemap(historical_data, company_data )
+#Use the session state to persist data between page refreshes
+if 'historical_data' not in st.session_state:
+    st.session_state['historical_data'], st.session_state['company_data'] = collect_data(stock_list)
+
+fig = create_treemap(
+    st.session_state['historical_data'], 
+    st.session_state['company_data'] 
+    )
 
 st.plotly_chart(fig, theme=None, use_container_width=True)
 
