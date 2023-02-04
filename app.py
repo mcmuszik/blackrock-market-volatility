@@ -4,6 +4,7 @@ import numpy as np
 import plotly.express as px
 
 st.header('BlackRock Market Volatility')
+st.subheader('created by Marc Muszik and John Black')
 
 data = dict(
     character=["Eve", "Cain", "Seth", "Enos", "Noam", "Abel", "Awan", "Enoch", "Azura"],
