@@ -1,25 +1,31 @@
 import numpy as np
+import datetime as dt
+import pandas as pd
 import plotly
 import plotly.express as px
 
+from data import DATASET
+from firestore_helpers import CREDENTIALS
 
-def show_moving_average_comparison(ticker, historical_data) -> plotly.graph_objs._figure.Figure:
+
+def show_moving_average_comparison(ticker) -> plotly.graph_objs._figure.Figure:
+    price_data = pd.read_gbq(f'select * from {DATASET}.prices')
     fig = px.line(
-        historical_data.query(f'ticker == "{ticker}"'), 
-        x=historical_data.query(f'ticker == "{ticker}"').index, 
+        price_data.query(f'ticker == "{ticker}"'), 
+        x=price_data.query(f'ticker == "{ticker}"').index, 
         y=['long_term_ma', 'short_term_ma']
         )
     return fig
 
 
-def create_treemap(historical_data, company_data) -> plotly.graph_objs._figure.Figure:
-
-    historical_data_with_industry = historical_data.merge(
-        company_data[['ticker', 'sector', 'industry']], 
+def create_treemap() -> plotly.graph_objs._figure.Figure:
+    company_info = pd.read_gbq(f'select industry, sector, industry from {DATASET}.company_info')
+    price_data = pd.read_gbq(f'select * from {DATASET}.prices')
+    price_data_with_industry = price_data.merge(
+        company_info, 
         on='ticker')
-    #Industry is a subset of sector
 
-    most_recent = historical_data_with_industry.groupby('ticker').last().reset_index()
+    most_recent = price_data_with_industry.groupby('ticker').last().reset_index()
     most_recent['volatility'] = (most_recent['short_term_ma'] - most_recent['long_term_ma'])
 
     missing_market_caps = list(np.where(most_recent['market_cap'] == 0)[0])
@@ -34,3 +40,6 @@ def create_treemap(historical_data, company_data) -> plotly.graph_objs._figure.F
         color_continuous_scale='RdYlGn_r')
     return volatility_treemap
 
+if __name__ == "__main__":
+    fig = create_treemap()
+    fig.show()
