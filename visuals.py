@@ -20,7 +20,7 @@ def create_treemap(historical_data, company_data) -> plotly.graph_objs._figure.F
     #Industry is a subset of sector
 
     most_recent = historical_data_with_industry.groupby('ticker').last().reset_index()
-    most_recent['volatility'] = (most_recent['5_day_ma'] - most_recent['90_day_ma'])
+    most_recent['volatility'] = (most_recent['short_term_ma'] - most_recent['long_term_ma'])
 
     missing_market_caps = list(np.where(most_recent['market_cap'] == 0)[0])
     missing_sector = list(np.where(most_recent[['sector', 'industry']].isna().any(axis=1))[0])
