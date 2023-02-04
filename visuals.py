@@ -31,6 +31,6 @@ def create_treemap(historical_data, company_data) -> plotly.graph_objs._figure.F
         path=['sector', 'industry', 'ticker'],
         values='market_cap',
         color='volatility',
-        color_continuous_scale='RdYlGn_r').show()
+        color_continuous_scale='RdYlGn_r')
     return volatility_treemap
 
