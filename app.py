@@ -2,8 +2,14 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.express as px
-import datetime as date
 import streamlit.components.v1 as components
+import datetime as dt
+
+from data import collect_data, list_us_stocks, get_possible_tickers
+from visuals import create_treemap
+from firestore_helpers import User, Transaction, CREDENTIALS
+
+USER_ID = '6efcb234-fcb5-45fb-90e2-6136f46a86b4'
 
 
 tab1, tab2 = st.tabs(["Personal", "Performance"])
@@ -15,11 +21,17 @@ with tab1:
         st.header(f'Market Volatility {today} ' + '📈')
         st.subheader('created by Marc Muszik and John Black')
 
+<<<<<<< HEAD
     # from data import collect_data, list_us_stocks
     # from visuals import create_treemap
 
 
 
+=======
+df = pd.DataFrame(
+   np.random.randn(50, 5),
+   columns=('col %d' % i for i in range(5)))
+>>>>>>> 1d1d5740cfa407859eb9bc472db5e34436a20bb3
 
 
         df = pd.DataFrame(
@@ -48,12 +60,27 @@ with tab1:
                 with col3:
                     st.date_input(label="Date")
 
+<<<<<<< HEAD
                 with col4:
                     st.text('')
                     st.text('')
                     st.button(label="save transaction")
 
                 st.write('You selected:', option)
+=======
+def ord(n):
+    # Used for date formatting
+    # source: https://stackoverflow.com/a/16671271/17774866
+    return str(n)+("th" if 4<=n%100<=20 else {1:"st",2:"nd",3:"rd"}.get(n%10, "th"))
+
+today = dt.date.today().strftime('%A, %b. ') + ord(int(dt.date.today().strftime('%-d')))
+
+
+st.header(f'Market Volatility for {today}.')
+st.subheader('created by Marc Muszik and John Black')
+
+stock_list = get_possible_tickers()
+>>>>>>> 1d1d5740cfa407859eb9bc472db5e34436a20bb3
 
     with tab2:
         # stock_list = list_us_stocks(n=500)
