@@ -38,3 +38,4 @@ fig = create_treemap(
 st.plotly_chart(fig, theme=None, use_container_width=True)
 
 st.caption('This plot charts the current volatility of individual shares from 500 publicly traded companies compared to their historical volatility. Data is sourced from Yahoo Finance.')
+
