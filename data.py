@@ -6,7 +6,7 @@ from typing import Tuple, List
 from multiprocessing.dummy import Pool
 from google.oauth2 import service_account
 
-CREDENTIALS = service_account.Credentials.from_service_account_file('uga-hacks-2023-mv-660b14c32eea.json')
+CREDENTIALS = service_account.Credentials.from_service_account_file('credentials.json')
 DATASET = 'uga-hacks-2023-mv.market_volatility_project'
 TABLE = 'company_info'
 
@@ -88,7 +88,7 @@ def get_possible_tickers(dataset: str = 'uga-hacks-2023-mv.market_volatility_pro
     return legit_tickers['ticker'].to_list()
 
 
-def get_price_data():
+def get_price_data(min_year):
     return pd.read_gbq(f'select * from {DATASET}.prices', credentials=CREDENTIALS)
 
 
