@@ -3,10 +3,9 @@ import datetime as dt
 import pandas as pd
 from dataclasses import dataclass, field
 from typing import List
-from google.oauth2 import service_account
 from google.cloud import firestore
 
-CREDENTIALS = service_account.Credentials.from_service_account_file('uga-hacks-2023-mv-660b14c32eea.json')
+from data import DATASET, CREDENTIALS
 
 db = firestore.Client(credentials=CREDENTIALS)
 
@@ -59,9 +58,9 @@ class User:
         return 'User created successfully'
 
     def update_transactions(self, transactions=List[Transaction]) -> str:
-        transactions_dicts = [t.to_dict() for t in stock_transactions]
+        transactions_dicts = [t.to_dict() for t in transactions]
         self.document_ref.update(
-            {'transactions': firestore.ArrayUnion(transactions_dicts)}
+            {'stock_transactions': firestore.ArrayUnion(transactions_dicts)}
             )
         return 'Updated successfully'
 
@@ -72,40 +71,46 @@ class User:
     def get_transactions_df(self):
         return pd.DataFrame(self.stock_transactions)
 
+    @staticmethod
+    def convert_quantity(row):
+        if row['is_purchase'] == 'sell':
+            return -row['quantity']
+        else:
+            return row['quantity']
     
-    # @property
-    # def portfolio_value(self):
+    def portfolio_value(self):
+        transactions_df = self.get_transactions_df()
+        transactions_df['quantity'] = transactions_df.apply(self.convert_quantity, axis=1)
+        transactions_df['cum_quantity'] = transactions_df.groupby('ticker')['quantity'].transform(pd.Series.cumsum)
+        tickers = transactions_df['ticker'].unique()
+        joined_tickers = "', '".join(tickers)
+        stock_prices = pd.read_gbq(f"select * from {DATASET}.prices where ticker in ('{joined_tickers}')", credentials=CREDENTIALS)
+        stock_prices['capital_gain'] = stock_prices.groupby('ticker')['Close'].pct_change()
+
+        merged_data = stock_prices.assign(
+                date=stock_prices['Date'].dt.strftime('%Y-%m-%d')
+            ).merge(
+                transactions_df.assign(
+            date=transactions_df['datetime'].dt.strftime('%Y-%m-%d')
+            ),
+            on=['date', 'ticker'],
+            how='outer'
+        )
+
+        merged_data['cum_quantity'] = merged_data.groupby('ticker')['cum_quantity'].apply(lambda x: x.bfill())
+        merged_data = merged_data.assign(
+            value = merged_data['Close'] * merged_data['cum_quantity'],
+            day_gain_loss = merged_data['capital_gain'] * merged_data['cum_quantity'],
+        )
+
+        merged_data[~merged_data['cum_quantity'].isna()]
+
+        return merged_data
+
 
 if __name__ == "__main__":
-    ID = '1b57fe1d-5fd5-4a13-b8e3-82bfbb1e8c42'
+    ID = 'bbbf58ba-823f-4a8c-8007-f22960e83448'
     user = User(ID)
-
-    stock_prices = pd.read_gbq(f'select * from {DATASET}.prices')
-    
-    transactions_df = pd.DataFrame(user.stock_transactions)
-    transactions_df = pd.concat([
-        transactions_df,
-        pd.DataFrame(Transaction('DG', 50, 'sell', dt.datetime(2023, 1, 1)).to_dict(), index=[0])
-    ], axis=0)
-    transactions_df= pd.concat([
-        transactions_df,
-        pd.DataFrame(Transaction('DG', 50, 'sell', dt.datetime(2023, 2, 1)).to_dict(), index=[0])
-    ], axis=0)
-
-    transactions_df.sort_values('ticker', 'datetime')
-    holding_windows = transactions_df.groupby('ticker')
-
-
-
-
-
-    purchases = transactions_df.query('is_purchase == "buy"')
-
-    purchases.assign(
-        Date=purchases.datetime.dt.strftime('%Y-%m-%d')
-        ).merge(
-            transactions_df
-        )
 
     def delete_all_users():
         """
@@ -119,9 +124,9 @@ if __name__ == "__main__":
 
     ## Create New User
     stock_transactions = [
-        Transaction('AAPL', 10, 'buy', dt.datetime(2022, 1, 1)),
-        Transaction('FB', 20, 'buy', dt.datetime(2021, 6, 30)),
-        Transaction('AMZN', 1, 'buy', dt.datetime(2021, 12, 31))
+        Transaction('AAPL', 10, 'buy', dt.datetime(2022, 12, 20)),
+        Transaction('FB', 20, 'buy', dt.datetime(2022, 12, 25)),
+        Transaction('AAPL', 1, 'sell', dt.datetime(2022, 12, 27))
     ]
 
     new_user = User(
@@ -148,4 +153,14 @@ if __name__ == "__main__":
 
     new_user.create_user()
     new_user.id
+
+    # New Transactions
+    new_transactions = [
+        Transaction('DG', 50, 'sell', dt.datetime(2023, 1, 1)),
+        Transaction('DG', 50, 'sell', dt.datetime(2023, 2, 1))
+    ]
+
+    user.update_transactions(new_transactions)
+
+
 
