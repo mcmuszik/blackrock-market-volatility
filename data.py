@@ -61,7 +61,6 @@ def calculate_moving_average(
     return data.groupby(partition_by)[over].transform(lambda x: x.rolling(days).mean())
 
 
-
 def collect_data_from_yahoo(ticker_list: List[str], n_threads=20, start: str = '2020-01-01', end: str = '2022-12-31'):
     """
     Collect historical price data and company data for each company in a list of tickers from Yahoo Finance.
@@ -90,7 +89,7 @@ def get_possible_tickers(dataset: str = 'uga-hacks-2023-mv.market_volatility_pro
         where sector is not null
         """,
         credentials=CREDENTIALS)
-    return legit_tickers['tickers'].to_list()
+    return legit_tickers['ticker'].to_list()
 
 
 if __name__ == "__main__":
