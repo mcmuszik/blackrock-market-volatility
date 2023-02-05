@@ -77,6 +77,7 @@ def collect_data_from_yahoo(ticker_list: List[str], n_threads=20, start: str = '
 
     historical_data['Close_Diff'] = historical_data['Close'].diff()
     historical_data['long_term_ma'] = calculate_moving_average(historical_data, days=30)
+    historical_data['short_term_ma'] = calculate_moving_average(historical_data, days=5)
     return historical_data, company_data
 
 
