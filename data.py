@@ -1,21 +1,16 @@
 import yfinance as yf
 import investpy as inv
 import pandas as pd
-import json
 import warnings
-from fredapi import Fred
 from typing import Tuple, List
 from multiprocessing.dummy import Pool
-from firestore_helpers import CREDENTIALS
+from google.oauth2 import service_account
 
-warnings.simplefilter(action='ignore', category=FutureWarning)
+CREDENTIALS = service_account.Credentials.from_service_account_file('uga-hacks-2023-mv-660b14c32eea.json')
 DATASET = 'uga-hacks-2023-mv.market_volatility_project'
 TABLE = 'company_info'
 
-query = f"Select count(*) from {DATASET}.{TABLE} where zip is not null"
-
-api_key = json.load(open('fred_creds.json', 'r'))
-fred = Fred(api_key=api_key['key'])
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
 
 def get_historical_and_company_data(ticker:str, **kwargs) -> Tuple[pd.DataFrame, pd.DataFrame]:
@@ -61,10 +56,11 @@ def calculate_moving_average(
     return data.groupby(partition_by)[over].transform(lambda x: x.rolling(days).mean())
 
 
-
 def collect_data_from_yahoo(ticker_list: List[str], n_threads=20, start: str = '2020-01-01', end: str = '2022-12-31'):
     """
-    Collect historical price data and company data for each company in a list of tickers.
+    Collect historical price data and company data for each company in a list of tickers from Yahoo Finance.
+    Used to collect the most up-to-date information (which was then uploaded to BigQuery).
+    Use BigQuery for the app's; use Yahoo Finance to keep BigQuery up-to-date.
     """
     with Pool(20) as p:
         data = p.map(
@@ -89,7 +85,15 @@ def get_possible_tickers(dataset: str = 'uga-hacks-2023-mv.market_volatility_pro
         where sector is not null
         """,
         credentials=CREDENTIALS)
-    return legit_tickers['tickers'].to_list()
+    return legit_tickers['ticker'].to_list()
+
+
+def get_price_data():
+    return pd.read_gbq(f'select * from {DATASET}.prices', credentials=CREDENTIALS)
+
+
+def get_company_data():
+    return pd.read_gbq(f'select * from {DATASET}.company_info', credentials=CREDENTIALS)
 
 
 if __name__ == "__main__":

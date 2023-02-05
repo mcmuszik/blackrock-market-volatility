@@ -4,13 +4,13 @@ import numpy as np
 import plotly.express as px
 import streamlit.components.v1 as components
 import datetime as dt
-
 # from data import collect_data, list_us_stocks, get_possible_tickers
 # from visuals import create_treemap
 # from firestore_helpers import User, Transaction, CREDENTIALS
 
 # USER_ID = '6efcb234-fcb5-45fb-90e2-6136f46a86b4'
 
+today = date.date.today().strftime('%m/%d/%Y')
 
 tab1, tab2 = st.tabs(["Individual Performance", "Market Volatility"])
 today = dt.date.today().strftime('%m/%d/%Y')
@@ -69,8 +69,6 @@ with tab1:
     # today = dt.date.today().strftime('%A, %b. ') + ord(int(dt.date.today().strftime('%-d')))
 
     # stock_list = get_possible_tickers()
-
-
     # stock_list = list_us_stocks(n=500)
     # #Use the session state to persist data between page refreshes
     # if 'historical_data' not in st.session_state:
