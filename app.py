@@ -2,8 +2,8 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.express as px
-import datetime as date
 import streamlit.components.v1 as components
+import datetime as dt
 
 from data import get_possible_tickers
 
@@ -23,6 +23,36 @@ df = pd.DataFrame(
 
 st.dataframe(df, height=350, width=1000)
 
+st.subheader('See your transaction history 👇')
+col1, col2 , col3, col4= st.columns(4)
+with st.container():
+    with col1:
+        option = st.selectbox(
+        'Stock Ticker',
+        ('DG', 'AMZN', 'APPL'))
+
+    with col2:
+        number = st.number_input('Volume', max_value=100000, min_value=0, step=1)
+
+    with col3:
+        st.date_input(label="Date")
+
+    with col4:
+        st.text('')
+        st.text('')
+        st.button(label="save transaction")
+
+    st.write('You selected:', option)
+
+def ord(n):
+    # Used for date formatting
+    # source: https://stackoverflow.com/a/16671271/17774866
+    return str(n)+("th" if 4<=n%100<=20 else {1:"st",2:"nd",3:"rd"}.get(n%10, "th"))
+
+# from data import collect_data, list_us_stocks
+# from visuals import create_treemap
+
+st.dataframe(df, height=350, width=1000)
 
 st.subheader('See your transaction history 👇')
 col1, col2 , col3, col4= st.columns(4)
