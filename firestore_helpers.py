@@ -42,9 +42,17 @@ class User:
         #If any fields are empty, fill them with the saved data
         contents = self.document_ref.get()
         for key, val in self.__dict__.items():
-            print(key)
             if val is None:
                 self.__setattr__(key, contents.get(key))
+
+    def to_dict(self) -> dict:
+        self.__dict__
+        return {'id': self.__dict__.get('id'),
+                'first_name': self.__dict__.get('first_name'),
+                'last_name': self.__dict__.get('last_name'),
+                'birth_date': self.__dict__.get('birth_date'),
+                'stock_transactions': [t.to_dict() for t in self.stock_transactions]
+                }
 
     def create_user(self) -> str:
         self.document_ref.set(self.to_dict())
@@ -61,24 +69,58 @@ class User:
         self.document_ref.delete()
         return 'Deleted successfully'
 
-    def to_dict(self) -> dict:
-        return {'id': self.__dict__.get('id'),
-                'first_name': self.__dict__.get('first_name'),
-                'last_name': self.__dict__.get('last_name'),
-                'birth_date': self.__dict__.get('birth_date'),
-                'stock_transactions': [t.to_dict() for t in self.stock_transactions]
-                }
+    def get_transactions_df(self):
+        return pd.DataFrame(self.stock_transactions)
 
+    
     # @property
     # def portfolio_value(self):
 
 if __name__ == "__main__":
-    ID = '6efcb234-fcb5-45fb-90e2-6136f46a86b4'
+    ID = '1b57fe1d-5fd5-4a13-b8e3-82bfbb1e8c42'
+    user = User(ID)
+
+    stock_prices = pd.read_gbq(f'select * from {DATASET}.prices')
+    
+    transactions_df = pd.DataFrame(user.stock_transactions)
+    transactions_df = pd.concat([
+        transactions_df,
+        pd.DataFrame(Transaction('DG', 50, 'sell', dt.datetime(2023, 1, 1)).to_dict(), index=[0])
+    ], axis=0)
+    transactions_df= pd.concat([
+        transactions_df,
+        pd.DataFrame(Transaction('DG', 50, 'sell', dt.datetime(2023, 2, 1)).to_dict(), index=[0])
+    ], axis=0)
+
+    transactions_df.sort_values('ticker', 'datetime')
+    holding_windows = transactions_df.groupby('ticker')
+
+
+
+
+
+    purchases = transactions_df.query('is_purchase == "buy"')
+
+    purchases.assign(
+        Date=purchases.datetime.dt.strftime('%Y-%m-%d')
+        ).merge(
+            transactions_df
+        )
+
+    def delete_all_users():
+        """
+        WARNING: DO NOT CALL THIS IN PRODUCTION. DEV FUNCTION ONLY.
+        """
+        users_collection = db.collection('users').stream()
+        for user in users_collection:
+            user_document = db.collection('users').document(user.id)
+            user_document.delete()
+
 
     ## Create New User
     stock_transactions = [
-        Transaction('QQQ', 10, 'buy', dt.datetime(2022, 1, 1)),
-        Transaction('SPY', 20, 'buy', dt.datetime(2021, 6, 30)),
+        Transaction('AAPL', 10, 'buy', dt.datetime(2022, 1, 1)),
+        Transaction('FB', 20, 'buy', dt.datetime(2021, 6, 30)),
         Transaction('AMZN', 1, 'buy', dt.datetime(2021, 12, 31))
     ]
 
@@ -105,4 +147,5 @@ if __name__ == "__main__":
         )
 
     new_user.create_user()
+    new_user.id
 
