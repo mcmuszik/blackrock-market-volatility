@@ -64,7 +64,9 @@ def calculate_moving_average(
 
 def collect_data_from_yahoo(ticker_list: List[str], n_threads=20, start: str = '2020-01-01', end: str = '2022-12-31'):
     """
-    Collect historical price data and company data for each company in a list of tickers.
+    Collect historical price data and company data for each company in a list of tickers from Yahoo Finance.
+    Used to collect the most up-to-date information (which was then uploaded to BigQuery).
+    Use BigQuery for the app's; use Yahoo Finance to keep BigQuery up-to-date.
     """
     with Pool(20) as p:
         data = p.map(

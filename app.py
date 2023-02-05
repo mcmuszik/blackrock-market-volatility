@@ -9,7 +9,7 @@ from data import collect_data, list_us_stocks, get_possible_tickers
 from visuals import create_treemap
 from firestore_helpers import User, Transaction, CREDENTIALS
 
-USER_ID = '6efcb234-fcb5-45fb-90e2-6136f46a86b4'
+USER_ID = '1b57fe1d-5fd5-4a13-b8e3-82bfbb1e8c42'
 
 
 with st.container():
