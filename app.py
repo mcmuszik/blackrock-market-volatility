@@ -15,9 +15,6 @@ with st.container():
 # from visuals import create_treemap
 
 
-
-
-
 df = pd.DataFrame(
    np.random.randn(50, 5),
    columns=('col %d' % i for i in range(5)))
@@ -58,3 +55,4 @@ with st.container():
 # st.plotly_chart(fig, theme=None, use_container_width=True)
 
 st.caption('This plot charts the current volatility of individual shares from 500 publicly traded companies compared to their historical volatility. Data is sourced from Yahoo Finance.')
+
