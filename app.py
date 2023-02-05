@@ -12,7 +12,7 @@ import datetime as dt
 # USER_ID = '6efcb234-fcb5-45fb-90e2-6136f46a86b4'
 
 
-tab1, tab2 = st.tabs(["Performance", "personal"])
+tab1, tab2 = st.tabs(["Individual Performance", "Market Volatility"])
 today = dt.date.today().strftime('%m/%d/%Y')
 
 with tab1:
@@ -57,7 +57,10 @@ with tab1:
                 st.button(label="save transaction")
 
             st.write('You selected:', option)
-
+    with tab2:
+        
+        st.header("Market Volatility Chart")
+        st.write("This is where the market volatility chart is")
     # def ord(n):
     #     # Used for date formatting
     #     # source: https://stackoverflow.com/a/16671271/17774866
@@ -80,7 +83,7 @@ with tab1:
 
     # st.plotly_chart(fig, theme=None, use_container_width=True)
 
-    st.caption('This plot charts the current volatility of individual shares from 500 publicly traded companies compared to their historical volatility. Data is sourced from Yahoo Finance.')
+        st.caption('This plot charts the current volatility of individual shares from 500 publicly traded companies compared to their historical volatility. Data is sourced from Yahoo Finance.')
 
     make_or_break(value=-5)
     make_or_break(value=5)
